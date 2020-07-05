@@ -53,8 +53,10 @@ def parse():
   elif options.version:
     print("vichr version: %s" % version)
     sys.exit(msg != "")
-  else:
+  elif options.tiles:
     return options
+  else:
+    parser.error("No input")
 
 ########################
 ##                    ##
@@ -62,3 +64,13 @@ def parse():
 ##                    ##
 ########################
 
+########################
+##                    ##
+## Main               ##
+##                    ##
+########################
+
+def main():
+  options = parse()
+
+main()
