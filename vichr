@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+#vichr information
+#
+#  vichr is an open source, terminal based
+#  nes chr file editor lightly inspired by
+#  vim.
+#
+#usage:
+#
+#  -h  --help                Print this message
+#  -v  --version             Print version of vichr
+#
+#  -t  --tiles  <file_name>  file containing background
+#                            or sprite tiles. Will be
+#                            created if not found and zeroed
+#  -p  --palette <file_name> file containing associated
+#                            palette. If not provided
+#                            or found, it will be created
+#                            as a file of zeroes
+
+import os, sys, argparse, curses
+
+version = "0.01"
+
+########################
+##                    ##
+## Command Line       ##
+##                    ##
+########################
+
+class parser_with_error(argparse.ArgumentParser):
+  def error(self, msg = ""):
+    if(msg): print("ERROR: %s" % msg)
+    this_file = open(sys.argv[0])
+    for(line_num, line) in enumerate(this_file):
+      if(line[0] != "#"): sys.exit(msg != "")
+      if(line_num > 0):   print(line[1:].rstrip("\n"))
+
+def parse():
+  parser = parser_with_error(add_help = False)
+
+  # add the args, not going to be strict
+
+  parser.add_argument("-h", "--help",    action = "store_true")
+  parser.add_argument("-v", "--version", action = "store_true")
+  parser.add_argument("-t", "--tiles",   type = str)
+  parser.add_argument("-p", "--palette", type = str)
+
+  options = parser.parse_args()
+
+  if options.help:
+    parser.error()
+  elif options.version:
+    print("vichr version: %s" % version)
+    sys.exit(msg != "")
+  else:
+    return options
+
+########################
+##                    ##
+## Aux Functions      ##
+##                    ##
+########################
+
