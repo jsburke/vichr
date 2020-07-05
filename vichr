@@ -52,7 +52,7 @@ def parse():
     parser.error()
   elif options.version:
     print("vichr version: %s" % version)
-    sys.exit(msg != "")
+    sys.exit()
   elif options.tiles:
     return options
   else:
