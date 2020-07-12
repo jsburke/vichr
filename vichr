@@ -7,18 +7,25 @@
 #
 #usage:
 #
-#  -h  --help                Print this message
-#  -v  --version             Print version of vichr
+#  -h  --help                   Print this message
+#  -v  --version                Print version of vichr
 #
-#  -t  --tiles  <file_name>  file containing background
-#                            or sprite tiles. Will be
-#                            created if not found and zeroed
-#  -p  --palette <file_name> file containing associated
-#                            palette. If not provided
-#                            or found, it will be created
-#                            as a file of zeroes
+#  -t  --tiles  <file_name>     file containing background
+#                (.chr)         or sprite tiles. Will be
+#                               created if not found and zeroed
+#  -p  --palette <file_name>    file containing associated
+#                 (.pal)        palette. If not provided
+#                               or found, it will be created
+#                               as a file of zeroes
+#  -a  --attribute <file_name>  file containing attribute
+#                   (.atr)      table associated to --tiles
+#                               will be created like palette
+#
+#  N.B. if palettes and attributes are not provided
+#       vichr will assume the same name as --tiles
 
 import os, sys, argparse, curses
+import numpy as np
 
 version = "0.01"
 
@@ -41,10 +48,11 @@ def parse():
 
   # add the args, not going to be strict
 
-  parser.add_argument("-h", "--help",    action = "store_true")
-  parser.add_argument("-v", "--version", action = "store_true")
-  parser.add_argument("-t", "--tiles",   type = str)
-  parser.add_argument("-p", "--palette", type = str)
+  parser.add_argument("-h", "--help",      action = "store_true")
+  parser.add_argument("-v", "--version",   action = "store_true")
+  parser.add_argument("-t", "--tiles",     type = str)
+  parser.add_argument("-p", "--palette",   type = str)
+  parser.add_argument("-a", "--attribute", type = str)
 
   options = parser.parse_args()
 
@@ -64,6 +72,41 @@ def parse():
 ##                    ##
 ########################
 
+def filenames_get(options):
+  bg_filename = options.tiles
+
+  if not(options.palette):
+    pal_filename = bg_filename.split(".")[0] + ".pal"
+  else:
+    pal_filename = options.palette
+
+  if not(options.attribute):
+    atr_filename = bg_filename.split(".")[0] + ".atr"
+  else:
+    atr_filename = options.attribute
+
+  return [bg_filename, pal_filename, atr_filename] 
+
+def files_read(filenames):
+  [bg, pal, atr] = filenames
+
+  if os.path.isfile(bg):
+    bg_data = np.fromfile(bg, dtype=np.uint8)
+  else:
+    print("can't find bg file")
+
+#  file_lists = []
+#
+#  for fn in filenames:
+#    if os.path.isfile(fn):
+#      with open(fn, "rb") as f:
+#        bytes = f.read()
+#      
+#    else:
+#      print("not found!")
+
+  return [1,2,3]
+
 ########################
 ##                    ##
 ## Main               ##
@@ -72,5 +115,12 @@ def parse():
 
 def main():
   options = parse()
+
+  filenames = filenames_get(options)
+  [bg, pal, atr] = files_read(filenames)
+
+  #bg_file.close()
+  #pal_file.close()
+  #atr_file.close()
 
 main()
