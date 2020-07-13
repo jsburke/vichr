@@ -13,16 +13,7 @@
 #  -t  --tiles  <file_name>     file containing background
 #                (.chr)         or sprite tiles. Will be
 #                               created if not found and zeroed
-#  -p  --palette <file_name>    file containing associated
-#                 (.pal)        palette. If not provided
-#                               or found, it will be created
-#                               as a file of zeroes
-#  -a  --attribute <file_name>  file containing attribute
-#                   (.atr)      table associated to --tiles
-#                               will be created like palette
 #
-#  N.B. if palettes and attributes are not provided
-#       vichr will assume the same name as --tiles
 
 import os, sys, argparse, curses
 import numpy as np
@@ -51,8 +42,6 @@ def parse():
   parser.add_argument("-h", "--help",      action = "store_true")
   parser.add_argument("-v", "--version",   action = "store_true")
   parser.add_argument("-t", "--tiles",     type = str)
-  parser.add_argument("-p", "--palette",   type = str)
-  parser.add_argument("-a", "--attribute", type = str)
 
   options = parser.parse_args()
 
@@ -72,40 +61,26 @@ def parse():
 ##                    ##
 ########################
 
-def filenames_get(options):
-  bg_filename = options.tiles
+def tiles_read(filename):
+  tiles = [] # blank out result
 
-  if not(options.palette):
-    pal_filename = bg_filename.split(".")[0] + ".pal"
-  else:
-    pal_filename = options.palette
+  if os.path.isfile(filename):
+    tiles_np = np.reshape(np.fromfile(filename, dtype=np.uint8), (-1, 8))
+  else: # drop 8k of zero since it's the mario chr size
+    tiles_np = np.zeros((1024, 8), dtype=np.uint8, order='C')
 
-  if not(options.attribute):
-    atr_filename = bg_filename.split(".")[0] + ".atr"
-  else:
-    atr_filename = options.attribute
+  # generate bit planes
+  [n_rows, n_cols] = tiles_np.shape
 
-  return [bg_filename, pal_filename, atr_filename] 
+  # going to need a converstion to bit arrays...
+  for row in range(0, n_rows, 2):
+    bit_plane_1 = tiles_np[row]
+    bit_plane_2 = tiles_np[row + 1]
 
-def files_read(filenames):
-  [bg, pal, atr] = filenames
+  # get bit planes, convert to tiles
+  # ta da
 
-  if os.path.isfile(bg):
-    bg_data = np.fromfile(bg, dtype=np.uint8)
-  else:
-    print("can't find bg file")
-
-#  file_lists = []
-#
-#  for fn in filenames:
-#    if os.path.isfile(fn):
-#      with open(fn, "rb") as f:
-#        bytes = f.read()
-#      
-#    else:
-#      print("not found!")
-
-  return [1,2,3]
+  return tiles
 
 ########################
 ##                    ##
@@ -116,11 +91,7 @@ def files_read(filenames):
 def main():
   options = parse()
 
-  filenames = filenames_get(options)
-  [bg, pal, atr] = files_read(filenames)
-
-  #bg_file.close()
-  #pal_file.close()
-  #atr_file.close()
+  tiles_file = options.tiles
+  tiles      = tiles_read(tiles_file)
 
 main()
